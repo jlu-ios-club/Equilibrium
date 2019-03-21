@@ -10,7 +10,7 @@ import SpriteKit
 import GameplayKit
 
 class GameScene: SKScene {
-    
+
     var entities = [GKEntity]()
     var graphs = [String : GKGraph]()
     
@@ -33,12 +33,15 @@ class GameScene: SKScene {
         gameStatus = .over
     }
     
-    var gameStatus: GameStatus = .idle  //表示当前游戏状态的变量，初始值为初始化状态
+    var gameStatus: GameStatus = .idle
+    
+    // size
+    static let size = 100
     
     // temperature
-    var comTemperature : Double = 45
+    static var comTemperature : Double = 45
     
-    func curTemperature(currentplace: CGPoint) -> Double {
+    static func curTemperature(currentplace: CGPoint) -> Double {
         return comTemperature + Double(currentplace.x / 20)
     }
     
@@ -62,8 +65,6 @@ class GameScene: SKScene {
     }
     
     var bflowersArr = [Bflower]()
-    var wflowersArr = [Wflower]()
-    var flowersNodeArr = [SKSpriteNode]()
     
     override func sceneDidLoad() {
 
@@ -87,9 +88,7 @@ class GameScene: SKScene {
             return
         case .running:
             for bflower in bflowersArr {
-                let tempPoint = bflower.born(currentscene: self)
-                if isLegal(bornplace: tempPoint) {
-                    
+                
                 }
             }
         case .over:
