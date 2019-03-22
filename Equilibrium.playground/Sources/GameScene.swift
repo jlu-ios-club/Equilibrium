@@ -68,6 +68,11 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
     
     func startGame() {
         gameStatus = .running
+        for (index,aNode) in animalsArr.enumerated() {
+            aNode.deathTimeChange()
+            let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
+            aNode.node.run(move, withKey: "Move\(index)")
+        }
     }
     
     func gameOver()  {
@@ -135,11 +140,12 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
         let node3 = Hanimal.init(bornPlace: CGPoint.init(x: -100, y: 0))
         self.addChild(node3.node)
         self.animalsArr.append(node3)
+        comTemperature += node3.influence
         
         let node4 = Hanimal.init(bornPlace: CGPoint.init(x: 100, y: 0))
         self.addChild(node4.node)
         self.animalsArr.append(node4)
-        comTemperature += node3.influence
+        comTemperature += node4.influence
     }
     
     // Physics
@@ -158,19 +164,25 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
             bodyB = contact.bodyA
         }
         if bodyA.categoryBitMask == flowersCategory && bodyB.categoryBitMask == hAnimalsCategory {
-            for (index,fNode) in flowersArr.enumerated() {
-                if fNode.node == bodyA.node! {
-                    fNode.node.removeFromParent()
-                    fNode.node.physicsBody = nil
-                    fNode.node.removeAllActions()
-                    flowersArr.remove(at: index)
-                    comTemperature -= fNode.influence
+            for child in children {
+                if child == bodyA.node! {
+                    child.removeFromParent()
+                    child.physicsBody = nil
+                    child.removeAllActions()
+                    for (index,fNode) in flowersArr.enumerated() {
+                        flowersArr.remove(at: index)
+                        comTemperature -= fNode.influence
+                        break
+                    }
                     break
                 }
             }
-            for aNode in animalsArr {
+            for (index,aNode) in animalsArr.enumerated() {
                 if aNode.node == bodyB.node! {
                     aNode.bornTimeChange()
+                    aNode.node.removeAction(forKey: "Move\(index)")
+                    let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
+                    aNode.node.run(move, withKey: "Move\(index)")
                     break
                 }
             }
@@ -247,7 +259,7 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                         continue
                     }
                     
-                    aNode.move(scene: self, foodIndex: index)
+//                    aNode.move(scene: self, foodIndex: index)
                     
                     placeTemp = aNode.born(scene: self)
                     if isIn(bornPlace: placeTemp){
@@ -258,6 +270,8 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                         self.animalsArr.append(nodeTemp)
                         comTemperature += nodeTemp.influence
                         aNode.bornTime += bornInitTime
+                        let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
+                        nodeTemp.node.run(move, withKey: "Move\(index)")
                     }
                 }
                 

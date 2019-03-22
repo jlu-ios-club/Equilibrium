@@ -131,7 +131,7 @@ public class Animal: Life {
         return 0
     }
     public var node : SKSpriteNode!
-
+    
     public func bornTimeChange() -> Void {
         bornTime -= 300
     }
@@ -162,28 +162,33 @@ public class Animal: Life {
         return false
     }
     
-    public func move(scene : GameScene, foodIndex : Int) -> Void {
-        if scene.flowersArr.isEmpty {
-            return
-        } else {
-            var placeTemp : CGPoint!
-            if scene.flowersArr.count < foodIndex {
-                placeTemp = scene.flowersArr.first!.node.position
-            } else {
-                placeTemp = scene.flowersArr[foodIndex].node.position
-            }
-            placeTemp.x = placeTemp.x - node.position.x
-            placeTemp.y = placeTemp.y - node.position.y
-            let splaceTemp = sqrt(placeTemp.x * placeTemp.x + placeTemp.y * placeTemp.y)
-            node.position.x = placeTemp.x / splaceTemp * CGFloat(speed) + node.position.x
-            node.position.y = placeTemp.y / splaceTemp * CGFloat(speed) + node.position.y
-        }
-    }
+//    public func move(scene : GameScene, foodIndex : Int) -> Void {
+//        if scene.flowersArr.isEmpty {
+//            return
+//        } else {
+//            var placeTemp : CGPoint!
+//            if scene.flowersArr.count < foodIndex {
+//                let ram = GKRandomDistribution.init(lowestValue: -250, highestValue: 250)
+//                if ram.nextBool() {
+//                    placeTemp = CGPoint.init(x: ram.nextInt(), y: 800)
+//                } else {
+//                    placeTemp = CGPoint.init(x: ram.nextInt(), y: -800)
+//                }
+//            } else {
+//                placeTemp = scene.flowersArr[foodIndex].node.position
+//            }
+//            placeTemp.x = placeTemp.x - node.position.x
+//            placeTemp.y = placeTemp.y - node.position.y
+//            let splaceTemp = sqrt(placeTemp.x * placeTemp.x + placeTemp.y * placeTemp.y)
+//            node.position.x = placeTemp.x / splaceTemp * CGFloat(speed) + node.position.x
+//            node.position.y = placeTemp.y / splaceTemp * CGFloat(speed) + node.position.y
+//        }
+//    }
 }
 
 public class Hanimal: Animal {
     public override var speed: Double {
-        return 2
+        return 3
     }
 
     init(bornPlace : CGPoint) {
@@ -202,7 +207,7 @@ public class Hanimal: Animal {
 
 public class Canimal: Animal {
     public override var speed: Double {
-        return 4
+        return 6
     }
     
     init(bornPlace : CGPoint) {
