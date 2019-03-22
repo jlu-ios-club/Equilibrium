@@ -35,11 +35,15 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
     var hAnimalsNum : Int = 0
     var cAnimalsNum : Int = 0
     
-    func isLegal(bornPlace: CGPoint) -> Bool {
+    func isIn(bornPlace: CGPoint) -> Bool {
         if bornPlace.x > GameScene.size * 5  || bornPlace.x < GameScene.size * -5 ||
             bornPlace.y > GameScene.size * 7.5 || bornPlace.y < GameScene.size * -7.5 {
             return false
         }
+        return true
+    }
+    
+    func isOut(bornPlace: CGPoint) -> Bool {
         for child in self.children {
             let xplace = child.position.x - bornPlace.x
             let yplace = child.position.y - bornPlace.y
@@ -116,21 +120,25 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
         var node1 : Bflower!
         var node2 : Yflower!
         
-        for i in 1...3 {
-            node1 = Bflower.init(bornPlace: CGPoint.init(x: -200 + i * 100, y: 200))
+        for i in 1...5 {
+            node1 = Bflower.init(bornPlace: CGPoint.init(x: -300 + i * 100, y: 200))
             self.addChild(node1.node)
             self.flowersArr.append(node1)
             comTemperature += node1.influence
             
-            node2 = Yflower.init(bornPlace: CGPoint.init(x: -200 + i * 100, y: -200))
+            node2 = Yflower.init(bornPlace: CGPoint.init(x: -300 + i * 100, y: -200))
             self.addChild(node2.node)
             self.flowersArr.append(node2)
             comTemperature += node2.influence
         }
         
-        let node3 = Hanimal.init(bornPlace: CGPoint.init(x: 0, y: 0))
+        let node3 = Hanimal.init(bornPlace: CGPoint.init(x: -100, y: 0))
         self.addChild(node3.node)
         self.animalsArr.append(node3)
+        
+        let node4 = Hanimal.init(bornPlace: CGPoint.init(x: 100, y: 0))
+        self.addChild(node4.node)
+        self.animalsArr.append(node4)
         comTemperature += node3.influence
     }
     
@@ -150,9 +158,8 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
             bodyB = contact.bodyA
         }
         if bodyA.categoryBitMask == flowersCategory && bodyB.categoryBitMask == hAnimalsCategory {
-            var placeTemp : CGPoint!
             for (index,fNode) in flowersArr.enumerated() {
-                if fNode.node == contact.bodyA.node! {
+                if fNode.node == bodyA.node! {
                     fNode.node.removeFromParent()
                     fNode.node.physicsBody = nil
                     fNode.node.removeAllActions()
@@ -162,17 +169,8 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                 }
             }
             for aNode in animalsArr {
-                if aNode.node == contact.bodyB.node! {
-                    placeTemp = aNode.born(scene: self)
-                    if isLegal(bornPlace: placeTemp) {
-                        placeTemp.x += aNode.node.position.x
-                        placeTemp.y += aNode.node.position.y
-                        let nodeTemp : Hanimal! = Hanimal.init(bornPlace: placeTemp)
-                        self.addChild(nodeTemp.node)
-                        self.animalsArr.append(nodeTemp)
-                        comTemperature += nodeTemp.influence
-                        aNode.bornTime += bornInitTime
-                    }
+                if aNode.node == bodyB.node! {
+                    aNode.bornTimeChange()
                     break
                 }
             }
@@ -212,46 +210,54 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                 
                 // Called before each frame is rendered
                 var placeTemp : CGPoint!
-                if flowersArr.count != 0 {
-                    for (index,fNode) in flowersArr.enumerated() {
-                        if fNode.death(scene: self) {
-                            fNode.node.removeFromParent()
-                            fNode.node.physicsBody = nil
-                            fNode.node.removeAllActions()
-                            flowersArr.remove(at: index)
-                            comTemperature -= fNode.influence
-                            continue
+                for (index,fNode) in flowersArr.enumerated() {
+                    if fNode.death(scene: self) {
+                        fNode.node.removeFromParent()
+                        fNode.node.physicsBody = nil
+                        fNode.node.removeAllActions()
+                        flowersArr.remove(at: index)
+                        comTemperature -= fNode.influence
+                        continue
+                    }
+                    
+                    placeTemp = fNode.born(scene: self)
+                    placeTemp.x += fNode.node.position.x
+                    placeTemp.y += fNode.node.position.y
+                    if isIn(bornPlace: placeTemp) && isOut(bornPlace: placeTemp) && flowersArr.count < GameScene.maxNum {
+                        let nodeTemp : Flower!
+                        if fNode is Bflower {
+                            nodeTemp = Bflower.init(bornPlace: placeTemp)
+                        } else {
+                            nodeTemp = Yflower.init(bornPlace: placeTemp)
                         }
-                        
-                        placeTemp = fNode.born(scene: self)
-                        placeTemp.x += fNode.node.position.x
-                        placeTemp.y += fNode.node.position.y
-                        if isLegal(bornPlace: placeTemp) && flowersArr.count < GameScene.maxNum {
-                            let nodeTemp : Flower!
-                            if fNode is Bflower {
-                                nodeTemp = Bflower.init(bornPlace: placeTemp)
-                            } else {
-                                nodeTemp = Yflower.init(bornPlace: placeTemp)
-                            }
-                            self.addChild(nodeTemp.node)
-                            self.flowersArr.append(nodeTemp)
-                            comTemperature += nodeTemp.influence
-                            fNode.bornTime += bornInitTime
-                        }
+                        self.addChild(nodeTemp.node)
+                        self.flowersArr.append(nodeTemp)
+                        comTemperature += nodeTemp.influence
+                        fNode.bornTime += bornInitTime
                     }
                 }
-
-                if animalsArr.count != 0 {
-                    for (index,aNode) in animalsArr.enumerated() {
-                        if aNode.death(scene: self) {
-                            aNode.node.removeFromParent()
-                            aNode.node.physicsBody = nil
-                            aNode.node.removeAllActions()
-                            flowersArr.remove(at: index)
-                            comTemperature -= aNode.influence
-                            continue
-                        }
-                        aNode.move(scene: self)
+                for (index,aNode) in animalsArr.enumerated() {
+                    aNode.deathTimeChange()
+                    if aNode.death(scene: self) {
+                        aNode.node.removeFromParent()
+                        aNode.node.physicsBody = nil
+                        aNode.node.removeAllActions()
+                        animalsArr.remove(at: index)
+                        comTemperature -= aNode.influence
+                        continue
+                    }
+                    
+                    aNode.move(scene: self, foodIndex: index)
+                    
+                    placeTemp = aNode.born(scene: self)
+                    if isIn(bornPlace: placeTemp){
+                        placeTemp.x += aNode.node.position.x
+                        placeTemp.y += aNode.node.position.y
+                        let nodeTemp : Hanimal! = Hanimal.init(bornPlace: placeTemp)
+                        self.addChild(nodeTemp.node)
+                        self.animalsArr.append(nodeTemp)
+                        comTemperature += nodeTemp.influence
+                        aNode.bornTime += bornInitTime
                     }
                 }
                 
@@ -264,6 +270,14 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                 }
                 bFlowersNum = tempNum
                 yFlowersNum = flowersArr.count - tempNum
+                tempNum = 0
+                for aNode in animalsArr {
+                    if aNode is Hanimal {
+                        tempNum += 1
+                    }
+                }
+                hAnimalsNum = tempNum
+                cAnimalsNum = animalsArr.count - hAnimalsNum
             
             case .over:
                 return
