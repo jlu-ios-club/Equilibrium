@@ -172,11 +172,22 @@ public class Animal: Life {
         }
         return false
     }
+    
+    public func move(scene : GameScene) -> Void {
+        if scene.flowersArr.count == 0 {
+            return
+        } else {
+            var placeTemp = scene.flowersArr.first!.node.position
+            placeTemp.x = (placeTemp.x - node.position.x) / GameScene.size * CGFloat(speed) + node.position.x
+            placeTemp.y = (placeTemp.y - node.position.y) / GameScene.size * CGFloat(speed) + node.position.y
+            node.position.equalTo(placeTemp)
+        }
+    }
 }
 
 public class Hanimal: Animal {
     public override var speed: Double {
-        return 2
+        return 100
     }
 
     init(bornPlace : CGPoint) {
@@ -188,7 +199,8 @@ public class Hanimal: Animal {
         node.position = bornPlace
         node.physicsBody = SKPhysicsBody(texture: node.texture!, size: node.size)
         node.physicsBody?.allowsRotation = false
-        node.physicsBody?.categoryBitMask = flowersCategory
+        node.physicsBody?.categoryBitMask = hAnimalsCategory
+        node.physicsBody?.contactTestBitMask = flowersCategory
     }
 }
 
@@ -206,6 +218,7 @@ public class Canimal: Animal {
         node.position = bornPlace
         node.physicsBody = SKPhysicsBody(texture: node.texture!, size: node.size)
         node.physicsBody?.allowsRotation = false
-        node.physicsBody?.categoryBitMask = flowersCategory
+        node.physicsBody?.categoryBitMask = cAnimalsCategory
+        node.physicsBody?.contactTestBitMask = hAnimalsCategory
     }
 }
