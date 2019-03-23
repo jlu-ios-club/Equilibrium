@@ -199,7 +199,7 @@ public class Canimal: Animal {
     init(bornPlace : CGPoint) {
         super.init()
 
-        node = SKSpriteNode.init(imageNamed: "img/CarnivorousAnimal.png")
+        node = SKSpriteNode.init(imageNamed: "img/CarnivoreAnimal.png")
         node.size.height = GameScene.size * 4 / 5
         node.size.width = GameScene.size * 4 / 5
         node.position = bornPlace

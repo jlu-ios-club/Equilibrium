@@ -217,7 +217,7 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                 // Change  comTemperature
                 comTemperatureLabel.text = "comTemperature:\(comTemperature)"
                 bFlowersLabel.text = "bFlowers:\(bFlowersNum)"
-                yFlowersLabel.text = "bFlowers:\(yFlowersNum)"
+                yFlowersLabel.text = "yFlowers:\(yFlowersNum)"
                 hAnimalsLabel.text = "hAnimals:\(hAnimalsNum)"
                 cAnimalsLabel.text = "cAnimals:\(cAnimalsNum)"
                 
