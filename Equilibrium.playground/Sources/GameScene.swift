@@ -1,4 +1,5 @@
 import SpriteKit
+import GameplayKit
 
 // Physics
 let flowersCategory: UInt32 = 0x1 << 0
@@ -68,11 +69,11 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
     
     func startGame() {
         gameStatus = .running
-        for (index,aNode) in animalsArr.enumerated() {
-            aNode.deathTimeChange()
-            let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
-            aNode.node.run(move, withKey: "Move\(index)")
-        }
+//        for (index,aNode) in animalsArr.enumerated() {
+//            aNode.deathTimeChange()
+//            let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
+//            aNode.node.run(move, withKey: "Move\(index)")
+//        }
     }
     
     func gameOver()  {
@@ -180,9 +181,9 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
             for (index,aNode) in animalsArr.enumerated() {
                 if aNode.node == bodyB.node! {
                     aNode.bornTimeChange()
-                    aNode.node.removeAction(forKey: "Move\(index)")
-                    let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
-                    aNode.node.run(move, withKey: "Move\(index)")
+//                    aNode.node.removeAction(forKey: "Move\(index)")
+//                    let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
+//                    aNode.node.run(move, withKey: "Move\(index)")
                     break
                 }
             }
@@ -259,10 +260,10 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                         continue
                     }
                     
-//                    aNode.move(scene: self, foodIndex: index)
+                    aNode.move(place: self.flowersArr[index].node.position)
                     
                     placeTemp = aNode.born(scene: self)
-                    if isIn(bornPlace: placeTemp){
+                    if isIn(bornPlace: placeTemp) {
                         placeTemp.x += aNode.node.position.x
                         placeTemp.y += aNode.node.position.y
                         let nodeTemp : Hanimal! = Hanimal.init(bornPlace: placeTemp)
@@ -270,8 +271,8 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                         self.animalsArr.append(nodeTemp)
                         comTemperature += nodeTemp.influence
                         aNode.bornTime += bornInitTime
-                        let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
-                        nodeTemp.node.run(move, withKey: "Move\(index)")
+//                        let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
+//                        nodeTemp.node.run(move, withKey: "Move\(index)")
                     }
                 }
                 
