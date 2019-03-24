@@ -111,51 +111,56 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
             addChild(temp2)
         }
         
-        let temp = AnimalNode.init(scene: self, kind: 0, bornPlace: CGPoint.init(x: 0, y: 0))
-        addChild(temp)
+        let tempp1 = AnimalNode.init(scene: self, kind: 0, bornPlace: CGPoint.init(x: 100, y: 0))
+        addChild(tempp1)
+        let tempp2 = AnimalNode.init(scene: self, kind: 0, bornPlace: CGPoint.init(x: -100, y: 0))
+        addChild(tempp2)
     }
-//    // Physics
-//    public func didBegin(_ contact: SKPhysicsContact) {
-//        if gameStatus != .running {
-//            return
-//        }
-//
-//        var bodyA : SKPhysicsBody
-//        var bodyB : SKPhysicsBody
-//        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
-//            bodyA = contact.bodyA
-//            bodyB = contact.bodyB
-//        } else {
-//            bodyA = contact.bodyB
-//            bodyB = contact.bodyA
-//        }
-//        if bodyA.categoryBitMask == flowersCategory && bodyB.categoryBitMask == hAnimalsCategory {
-//            for child in children {
-//                if child == bodyA.node! {
-//                    child.removeFromParent()
-//                    child.physicsBody = nil
-//                    child.removeAllActions()
-//                    for (index,fNode) in flowersArr.enumerated() {
-//                        flowersArr.remove(at: index)
-//                        comTemperature -= fNode.influence
-//                        break
-//                    }
-//                    break
-//                }
-//            }
-//            for (index,aNode) in animalsArr.enumerated() {
-//                if aNode.node == bodyB.node! {
-//                    aNode.bornTimeChange()
-////                    aNode.node.removeAction(forKey: "Move\(index)")
-////                    let move = SKAction.move(to: self.flowersArr[index].node.position, duration: 1)
-////                    aNode.node.run(move, withKey: "Move\(index)")
-//                    break
-//                }
-//            }
-//        } else if bodyA.categoryBitMask == hAnimalsCategory && bodyB.categoryBitMask == cAnimalsCategory {
-//
-//        }
-//    }
+    
+    public func initGame4() -> Void {
+        for i in 1...5 {
+            let temp1 = FlowerNode.init(scene: self, kind: 0, bornPlace: CGPoint.init(x: -300 + 100 * i, y: 200))
+            addChild(temp1)
+            let temp2 = FlowerNode.init(scene: self, kind: 1, bornPlace: CGPoint.init(x: -300 + 100 * i, y: -200))
+            addChild(temp2)
+        }
+        
+        let tempp1 = AnimalNode.init(scene: self, kind: 0, bornPlace: CGPoint.init(x: 200, y: 0))
+        addChild(tempp1)
+        let tempp2 = AnimalNode.init(scene: self, kind: 0, bornPlace: CGPoint.init(x: -200, y: 0))
+        addChild(tempp2)
+        let tempp3 = AnimalNode.init(scene: self, kind: 1, bornPlace: CGPoint.init(x: 0, y: 0))
+        addChild(tempp3)
+    }
+    
+    // Physics
+    public func didBegin(_ contact: SKPhysicsContact) {
+        if gameStatus != .running {
+            return
+        }
+        var bodyA : SKPhysicsBody
+        var bodyB : SKPhysicsBody
+        if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
+            bodyA = contact.bodyA
+            bodyB = contact.bodyB
+        } else {
+            bodyA = contact.bodyB
+            bodyB = contact.bodyA
+        }
+        if bodyA.categoryBitMask == flowersCategory && bodyB.categoryBitMask == hAnimalsCategory {
+            bodyA.node?.removeFromParent()
+            bodyA.node?.physicsBody = nil
+            bodyA.node?.removeAllActions()
+            let hchild = bodyB.node! as! AnimalNode
+            hchild.bornTimeChangeByT(scene: self)
+        } else if bodyA.categoryBitMask == hAnimalsCategory && bodyB.categoryBitMask == cAnimalsCategory {
+            bodyA.node?.removeFromParent()
+            bodyA.node?.physicsBody = nil
+            bodyA.node?.removeAllActions()
+            let hchild = bodyB.node! as! AnimalNode
+            hchild.bornTimeChangeByT(scene: self)
+        }
+    }
     
     // Scene
     public override func didMove(to view: SKView) {
@@ -171,7 +176,7 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
         hAnimalsLabel = childNode(withName: "//hAnimals") as? SKLabelNode
         cAnimalsLabel = childNode(withName: "//cAnimals") as? SKLabelNode
         
-        initGame2()
+        initGame4()
     }
     
     public override func update(_ currentTime: TimeInterval) {
@@ -202,6 +207,8 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                     fchild.deathTimeChangeByT(scene: self)
                     if fchild.deathTime < 0 {
                         fchild.removeFromParent()
+                        fchild.physicsBody = nil
+                        fchild.removeAllActions()
                     }
                     
                     fchild.bornTimeChangeByT(scene: self)
@@ -227,18 +234,66 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                     default:
                         return
                     }
-//                } else if child is FlowerNode {
-//                    let fchild = child as! FlowerNode
-//                    switch fchild.kind {
-//                    case 0:
-//                        bFlowersNum += 1
-//                    case 1:
-//                        yFlowersNum += 1
-//                    default:
-//                        return
-//                    }
+                } else if child is AnimalNode {
+                    let achild = child as! AnimalNode
+                    
+                    achild.deathTimeChangeByT(scene: self)
+                    if achild.deathTime < 0 {
+                        achild.removeFromParent()
+                        achild.physicsBody = nil
+                        achild.removeAllActions()
+                    }
+                    
+                    if achild.bornTime < 0 {
+                        tempPlaceY = CGFloat(ram.nextInt())
+                        tempPlaceX = sqrt(1.3 * GameScene.size * 1.3 * GameScene.size - tempPlaceY * tempPlaceY)
+                        if ram.nextBool() {
+                            tempPlaceX = -tempPlaceX
+                        }
+                        tempPlaceX += achild.position.x
+                        tempPlaceY += achild.position.y
+                        
+                        if isIn(bornPlace: CGPoint.init(x: tempPlaceX, y: tempPlaceY)) {
+                            addChild(AnimalNode.init(scene: self, kind: achild.kind, bornPlace: CGPoint.init(x: tempPlaceX, y: tempPlaceY)))
+                            achild.bornTime += bornInitTime
+                        }
+                    }
+                    switch achild.kind {
+                    case 0:
+                        hAnimalsNum += 1
+                        if !achild.hasActions() {
+                            var moveToPlace : CGPoint = CGPoint.init(x: 0, y: 0)
+                            for tchild in children {
+                                if tchild is FlowerNode {
+                                    moveToPlace = tchild.position
+                                    break
+                                }
+                            }
+                            let moveToEat = SKAction.move(to: moveToPlace, duration: 1)
+                            moveToEat.speed = 0.5
+                            achild.run(moveToEat)
+                        }
+                    case 1:
+                        cAnimalsNum += 1
+                        if !achild.hasActions() {
+                            var moveToPlace : CGPoint = CGPoint.init(x: 0, y: 0)
+                            for tchild in children {
+                                if tchild is AnimalNode {
+                                    let ttchild = tchild as! AnimalNode
+                                    if ttchild.kind == 0 {
+                                        moveToPlace = tchild.position
+                                        break
+                                    }
+                                }
+                            }
+                            let moveToEat = SKAction.move(to: moveToPlace, duration: 1)
+                            moveToEat.speed = 0.7
+                            achild.run(moveToEat)
+                        }
+                    default:
+                        return
+                    }
                 }
-                
             }
         case .over:
             return

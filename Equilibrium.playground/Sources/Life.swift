@@ -54,24 +54,23 @@ public class FlowerNode: SKSpriteNode,Life {
         switch kind {
             case 0:
                 let texture = SKTexture(imageNamed: "img/BlackFlower.png")
-                self.init(texture: texture, color: UIColor.clear, size: texture.size())
+                self.init(texture: texture, color: UIColor.clear, size: CGSize.init(width: GameScene.size * 0.8, height: GameScene.size * 0.8))
                 self.adaptAbility = 30
                 self.influence = 1
             default:
                 let texture = SKTexture(imageNamed: "img/YellowFlower.png")
-                self.init(texture: texture, color: UIColor.clear, size: texture.size())
+                self.init(texture: texture, color: UIColor.clear, size: CGSize.init(width: GameScene.size * 0.8, height: GameScene.size * 0.8))
                 self.adaptAbility = 60
                 self.influence = -1
         }
         self.kind = kind
         self.speed = 0
         
-        size.height = GameScene.size * 0.8
-        size.width = GameScene.size * 0.8
         position = bornPlace
         physicsBody = SKPhysicsBody.init(rectangleOf: size, center: CGPoint(x : 0.5, y : 0.5))
         physicsBody?.allowsRotation = false
         physicsBody?.categoryBitMask = flowersCategory
+        physicsBody?.collisionBitMask = hAnimalsCategory | flowersCategory
         
         scene.comTemperature += influence
     }
@@ -85,7 +84,7 @@ public class AnimalNode: SKSpriteNode,Life {
     public var kind: Int!
     
     public func bornTimeChangeByT(scene : GameScene) -> Void {
-        bornTime -= 300
+        bornTime -= 600
     }
     
     public func deathTimeChangeByT(scene : GameScene) -> Void {
@@ -107,41 +106,27 @@ public class AnimalNode: SKSpriteNode,Life {
         switch kind {
         case 0:
             let texture = SKTexture(imageNamed: "img/HerbivoreAnimal.png")
-            self.init(texture: texture, color: UIColor.clear, size: texture.size())
+            self.init(texture: texture, color: UIColor.clear, size: CGSize.init(width: GameScene.size * 0.8, height: GameScene.size * 0.8))
+            position = bornPlace
             physicsBody = SKPhysicsBody.init(rectangleOf: size, center: CGPoint(x : 0.5, y : 0.5))
             physicsBody?.allowsRotation = false
             physicsBody?.categoryBitMask = hAnimalsCategory
+            physicsBody?.contactTestBitMask = flowersCategory
+            physicsBody?.collisionBitMask = hAnimalsCategory | cAnimalsCategory
         default:
             let texture = SKTexture(imageNamed: "img/CarnivoreAnimal.png")
-            self.init(texture: texture, color: UIColor.clear, size: texture.size())
+            self.init(texture: texture, color: UIColor.clear, size: CGSize.init(width: GameScene.size * 0.8, height: GameScene.size * 0.8))
+            position = bornPlace
             physicsBody = SKPhysicsBody.init(rectangleOf: size, center: CGPoint(x : 0.5, y : 0.5))
             physicsBody?.allowsRotation = false
             physicsBody?.categoryBitMask = cAnimalsCategory
+            physicsBody?.contactTestBitMask = hAnimalsCategory
+            physicsBody?.collisionBitMask = hAnimalsCategory | cAnimalsCategory
         }
         self.kind = kind
         self.adaptAbility = 45
         self.influence = 2
         
-        size.height = GameScene.size * 0.8
-        size.width = GameScene.size * 0.8
-        position = bornPlace
-        
         scene.comTemperature += influence
-        
-        let moveToEat = SKAction.run {
-            switch kind {
-            case 0:
-                for child in scene.children {
-                    if child is FlowerNode {
-                        let moveToE = SKAction.move(to: child.position, duration: 1)
-                        moveToE.speed = 2
-                        self.run(moveToE)
-                    }
-                }
-            default:
-                return
-            }
-        }
-        self.run(SKAction.repeatForever(moveToEat))
     }
 }
