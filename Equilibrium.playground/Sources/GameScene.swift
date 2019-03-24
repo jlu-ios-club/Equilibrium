@@ -177,6 +177,7 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
         hAnimalsLabel = childNode(withName: "//hAnimals") as? SKLabelNode
         cAnimalsLabel = childNode(withName: "//cAnimals") as? SKLabelNode
         
+        // Please add your init function here
         initGame4()
     }
     

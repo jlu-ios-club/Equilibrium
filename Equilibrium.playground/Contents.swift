@@ -10,14 +10,13 @@ import SpriteKit
  
  It is a game which can simulate the ecological equilibrium system in our nature.
  
- ## What does it show?
+ ## How does it work?
  
- In this system, we can find the land is colder in the lower part. And there are two kinds of flowers as producers. They are affected by temperature. The black flowers grow well in the cold environment and absorb heat, the yellow ones the opposite. In addition, I add the herbivore and the carnivore. Running through the objects in every possible combination, we can create an ecological equilibrium system or ruin the land.
+ In this system, the screen represents a land, and the temperature of it gets lower along with the increase of the latitude ( imagine the land is located in the Southern Hemisphere ). To simulate the effect of producers, two kinds of flowers, the black ones and the yellow ones, are constructed, and their growth are affected by temperature. The black flowers grow well in the cold environment and absorb heat, while the yellow ones just act the opposite. Besides, herbivores and carnivores are added too. The herbivores feed on the flowers while the carnivores feed on them, which is consistent with the common sense. By running the system under which all of the objects interact with each other randomly, we create a simulated ecological system which is likely to achieve ecological balance or be destroyed shortly after.
  
+ ## What can we do to intervene the process?
  
- ## How can we play?
- 
- We can add objects in the init funtion to simulate different condition. At the same time, we can change the value in "Life.swift" to show more interesting situation.
+ We can add objects in the init funtion to simulate different condition. At the same time, we can also change some parameters such as the value in "Life.swift", leading to more interesting situation.
  */
 
 // Load the SKScene from 'GameScene.sks'
