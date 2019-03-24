@@ -121,6 +121,7 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
         for i in 1...5 {
             let temp1 = FlowerNode.init(scene: self, kind: 0, bornPlace: CGPoint.init(x: -300 + 100 * i, y: 200))
             addChild(temp1)
+            temp1.run(SKAction.move(to: CGPoint.init(x: 0, y: 0), duration: 1))
             let temp2 = FlowerNode.init(scene: self, kind: 1, bornPlace: CGPoint.init(x: -300 + 100 * i, y: -200))
             addChild(temp2)
         }
@@ -260,13 +261,18 @@ public class GameScene: SKScene,SKPhysicsContactDelegate {
                     }
                     switch achild.kind {
                     case 0:
+                        let ramh = GKRandomDistribution.init(lowestValue: 0, highestValue: bFlowersNum + yFlowersNum - 1)
                         hAnimalsNum += 1
                         if !achild.hasActions() {
                             var moveToPlace : CGPoint = CGPoint.init(x: 0, y: 0)
+                            var count = ramh.nextInt()
                             for tchild in children {
                                 if tchild is FlowerNode {
-                                    moveToPlace = tchild.position
-                                    break
+                                    if count == 0 {
+                                        moveToPlace = tchild.position
+                                        break
+                                    }
+                                    count -= 1
                                 }
                             }
                             let moveToEat = SKAction.move(to: moveToPlace, duration: 1)
