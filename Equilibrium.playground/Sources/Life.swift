@@ -2,210 +2,146 @@ import SpriteKit
 import GameplayKit
 
 public let adaptiveRange : Double = 30
-public let bornInitTime : Double = 1000
-public let deathInitTime : Double = 1200
+public let bornInitTime : Double = 1800
+public let deathInitTime : Double = 2000
 
 public protocol Life {
-    var adaptAbility : Double {get}
+    var adaptAbility : Double! {get set}
     var bornTime : Double {get}
     var deathTime : Double {get}
-    var influence : Double {get}
-    var speed : Double {get}
-    var node : SKSpriteNode! {get}
-    
-    func born(scene : GameScene) -> CGPoint
-    func death(scene : GameScene) -> Bool
+    var influence : Double! {get set}
+    var kind : Int! {get set}
 }
 
-public class Flower: Life {
-    public var adaptAbility: Double {
-        return 45
-    }
+public class FlowerNode: SKSpriteNode,Life {
+    public var adaptAbility: Double!
     public var bornTime: Double = bornInitTime
     public var deathTime: Double = deathInitTime
-    public var influence: Double {
-        return 0
-    }
-    public var speed: Double = 0
-    public var node : SKSpriteNode!
+    public var influence: Double!
+    public var kind: Int!
     
-    public func bornTimeChangeByT(scene : GameScene) -> Double {
-        let level = abs(scene.curTemperature(currentplace: node!.position) - adaptAbility) / adaptiveRange
+    public func bornTimeChangeByT(scene : GameScene) -> Void {
+        var changeNum : Double = 0
+        let level = abs(scene.curTemperature(currentplace: position) - adaptAbility) / adaptiveRange
         if level < 0.3 {
-            return 15
+            changeNum = 15
         } else if level < 0.6 {
-            return 12
+            changeNum = 12
         } else if level < 1 {
-            return 8
+            changeNum = 8
         } else {
-            return 2
+            changeNum = 2
         }
+        bornTime -= changeNum
     }
     
-    public func deathTimeChangeByT(scene : GameScene) -> Double {
-        let level = abs(scene.curTemperature(currentplace: node!.position) - adaptAbility) / adaptiveRange
+    public func deathTimeChangeByT(scene : GameScene) -> Void {
+        var changeNum : Double = 0
+        let level = abs(scene.curTemperature(currentplace: position) - adaptAbility) / adaptiveRange
         if level < 0.3 {
-            return 2
+            changeNum = 2
         } else if level < 0.6 {
-            return 3
+            changeNum = 3
         } else if level < 1 {
-            return 4
+            changeNum = 4
         } else {
-            return 6
+            changeNum = 6
         }
+        deathTime -= changeNum
     }
     
-    public func born(scene : GameScene) -> CGPoint {
-        bornTime -= bornTimeChangeByT(scene: scene)
-        var place = CGPoint.init(x: 10 * GameScene.size, y: 0)
-        if bornTime < 0 {
-            let ram = GKRandomDistribution.init(lowestValue: -Int(1.3 * Double(GameScene.size)), highestValue: Int(1.3 * Double(GameScene.size)))
-            let positionY : Double = Double(ram.nextInt())
-            var positionX = sqrt(1.3 * Double(GameScene.size) * 1.3 * Double(GameScene.size) - positionY * positionY)
-            if ram.nextBool() {
-                positionX = -positionX
-            }
-            place.x = CGFloat(positionX)
-            place.y = CGFloat(positionY)
+    convenience init(scene : GameScene, kind : Int, bornPlace : CGPoint) {
+        switch kind {
+            case 0:
+                let texture = SKTexture(imageNamed: "img/BlackFlower.png")
+                self.init(texture: texture, color: UIColor.clear, size: texture.size())
+                self.adaptAbility = 30
+                self.influence = 1
+            default:
+                let texture = SKTexture(imageNamed: "img/YellowFlower.png")
+                self.init(texture: texture, color: UIColor.clear, size: texture.size())
+                self.adaptAbility = 60
+                self.influence = -1
         }
-        return place
-    }
-    
-    public func death(scene : GameScene) -> Bool {
-        deathTime -= deathTimeChangeByT(scene: scene)
-        if deathTime < 0 {
-            return true
-        }
-        return false
-    }
-}
-
-public class Bflower: Flower {
-    public override var adaptAbility: Double {
-        return 35
-    }
-    public override var influence: Double {
-        return 1
-    }
-    
-    init(bornPlace : CGPoint) {
-        super.init()
+        self.kind = kind
+        self.speed = 0
         
-        node = SKSpriteNode.init(imageNamed: "img/BlackFlower.png")
-        node.size.height = GameScene.size * 4 / 5
-        node.size.width = GameScene.size * 4 / 5
-        node.position = bornPlace
-        node.physicsBody = SKPhysicsBody.init(rectangleOf: node.size, center: CGPoint(x : 0.5, y : 0.5))
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.categoryBitMask = flowersCategory
-    }
-}
-
-public class Yflower: Flower {
-    public override var adaptAbility: Double {
-        return 55
-    }
-    public override var influence: Double {
-        return -1
-    }
-    
-    init(bornPlace : CGPoint) {
-        super.init()
+        size.height = GameScene.size * 0.8
+        size.width = GameScene.size * 0.8
+        position = bornPlace
+        physicsBody = SKPhysicsBody.init(rectangleOf: size, center: CGPoint(x : 0.5, y : 0.5))
+        physicsBody?.allowsRotation = false
+        physicsBody?.categoryBitMask = flowersCategory
         
-        node = SKSpriteNode.init(imageNamed: "img/YellowFlower.png")
-        node.size.height = GameScene.size * 4 / 5
-        node.size.width = GameScene.size * 4 / 5
-        node.position = bornPlace
-        node.physicsBody = SKPhysicsBody.init(rectangleOf: node.size, center: CGPoint(x : 0.5, y : 0.5))
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.categoryBitMask = flowersCategory
+        scene.comTemperature += influence
     }
 }
 
-public class Animal: Life {
-    public var adaptAbility: Double = 45
+public class AnimalNode: SKSpriteNode,Life {
+    public var adaptAbility: Double!
     public var bornTime: Double = bornInitTime
     public var deathTime: Double = deathInitTime
-    public var influence: Double = 2
-    public var speed: Double {
-        return 0
-    }
-    public var node : SKSpriteNode!
+    public var influence: Double!
+    public var kind: Int!
     
-    public func bornTimeChange() -> Void {
+    public func bornTimeChangeByT(scene : GameScene) -> Void {
         bornTime -= 300
     }
-
-    public func deathTimeChange() -> Void {
-        deathTime -= 1
+    
+    public func deathTimeChangeByT(scene : GameScene) -> Void {
+        var changeNum : Double = 0
+        let level = abs(scene.curTemperature(currentplace: position) - adaptAbility) / adaptiveRange
+        if level < 0.3 {
+            changeNum = 2
+        } else if level < 0.6 {
+            changeNum = 3
+        } else if level < 1 {
+            changeNum = 4
+        } else {
+            changeNum = 6
+        }
+        deathTime -= changeNum
     }
-
-    public func born(scene : GameScene) -> CGPoint {
-        var place = CGPoint.init(x: 10 * GameScene.size, y: 0)
-        if bornTime < 0 {
-            let ram = GKRandomDistribution.init(lowestValue: -Int(1 * Double(GameScene.size)), highestValue: Int(1 * Double(GameScene.size)))
-            let positionY : Double = Double(ram.nextInt())
-            var positionX = sqrt(1 * Double(GameScene.size) * 1 * Double(GameScene.size) - positionY * positionY)
-            if ram.nextBool() {
-                positionX = -positionX
+    
+    convenience init(scene : GameScene, kind : Int, bornPlace : CGPoint) {
+        switch kind {
+        case 0:
+            let texture = SKTexture(imageNamed: "img/HerbivoreAnimal.png")
+            self.init(texture: texture, color: UIColor.clear, size: texture.size())
+            physicsBody = SKPhysicsBody.init(rectangleOf: size, center: CGPoint(x : 0.5, y : 0.5))
+            physicsBody?.allowsRotation = false
+            physicsBody?.categoryBitMask = hAnimalsCategory
+        default:
+            let texture = SKTexture(imageNamed: "img/CarnivoreAnimal.png")
+            self.init(texture: texture, color: UIColor.clear, size: texture.size())
+            physicsBody = SKPhysicsBody.init(rectangleOf: size, center: CGPoint(x : 0.5, y : 0.5))
+            physicsBody?.allowsRotation = false
+            physicsBody?.categoryBitMask = cAnimalsCategory
+        }
+        self.kind = kind
+        self.adaptAbility = 45
+        self.influence = 2
+        
+        size.height = GameScene.size * 0.8
+        size.width = GameScene.size * 0.8
+        position = bornPlace
+        
+        scene.comTemperature += influence
+        
+        let moveToEat = SKAction.run {
+            switch kind {
+            case 0:
+                for child in scene.children {
+                    if child is FlowerNode {
+                        let moveToE = SKAction.move(to: child.position, duration: 1)
+                        moveToE.speed = 2
+                        self.run(moveToE)
+                    }
+                }
+            default:
+                return
             }
-            place.x = CGFloat(positionX)
-            place.y = CGFloat(positionY)
         }
-        return place
-    }
-
-    public func death(scene : GameScene) -> Bool {
-        if deathTime < 0 {
-            return true
-        }
-        return false
-    }
-    
-    public func move(place : CGPoint) -> Void {
-        var placeTemp = place
-        placeTemp.x = placeTemp.x - node.position.x
-        placeTemp.y = placeTemp.y - node.position.y
-        let splaceTemp = sqrt(placeTemp.x * placeTemp.x + placeTemp.y * placeTemp.y)
-        node.position.x = placeTemp.x / splaceTemp * CGFloat(speed) + node.position.x
-        node.position.y = placeTemp.y / splaceTemp * CGFloat(speed) + node.position.y
-    }
-}
-
-public class Hanimal: Animal {
-    public override var speed: Double {
-        return 3
-    }
-
-    init(bornPlace : CGPoint) {
-        super.init()
-
-        node = SKSpriteNode.init(imageNamed: "img/HerbivoreAnimal.png")
-        node.size.height = GameScene.size * 4 / 5
-        node.size.width = GameScene.size * 4 / 5
-        node.position = bornPlace
-        node.physicsBody = SKPhysicsBody.init(rectangleOf: node.size, center: CGPoint(x : 0.5, y : 0.5))
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.categoryBitMask = hAnimalsCategory
-        node.physicsBody?.contactTestBitMask = flowersCategory
-    }
-}
-
-public class Canimal: Animal {
-    public override var speed: Double {
-        return 6
-    }
-    
-    init(bornPlace : CGPoint) {
-        super.init()
-
-        node = SKSpriteNode.init(imageNamed: "img/CarnivoreAnimal.png")
-        node.size.height = GameScene.size * 4 / 5
-        node.size.width = GameScene.size * 4 / 5
-        node.position = bornPlace
-        node.physicsBody = SKPhysicsBody.init(rectangleOf: node.size, center: CGPoint(x : 0.5, y : 0.5))
-        node.physicsBody?.allowsRotation = false
-        node.physicsBody?.categoryBitMask = cAnimalsCategory
-        node.physicsBody?.contactTestBitMask = hAnimalsCategory
+        self.run(SKAction.repeatForever(moveToEat))
     }
 }
